@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beta Testing - Dynamic Security System</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: #0f172a; color: #f8fafc; display: flex; justify-content: center; padding: 20px; }
+        .box { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 20px; width: 100%; max-width: 500px; }
+        h3 { color: #38bdf8; margin-bottom: 15px; }
+        input, button { width: 100%; padding: 10px; margin-top: 10px; border-radius: 6px; border: 1px solid #334155; }
+        input { background: #0f172a; color: #fff; }
+        button { background: #0284c7; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+        button:hover { background: #0369a1; }
+        .code-display { background: #0f172a; color: #4ade80; padding: 10px; border-radius: 6px; margin-top: 10px; word-break: break-all; font-family: monospace; }
+        .history { margin-top: 20px; border-top: 1px solid #334155; padding-top: 10px; }
+        .history-item { font-size: 0.8rem; background: #0f172a; padding: 8px; border-radius: 4px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h3>Beta Security UI (URL Tab)</h3>
+    <label>Git Repository URL:</label>
+    <input type="text" id="gitUrl" value="https://github.com/hjjjjjjjg/Skin-.git">
+
+    <label style="margin-top:10px; display:block;">Current Counter Code:</label>
+    <input type="number" id="counter" value="99">
+
+    <button onclick="generateCode()">Generate & Save to Browser History</button>
+
+    <div id="outputBox" style="display:none; margin-top:15px;">
+        <label>Generated Payload (_21_):</label>
+        <div class="code-display" id="payloadDisplay"></div>
+    </div>
+
+    <div class="history">
+        <h4>📱 Phone/Browser Saved History:</h4>
+        <div id="historyList"></div>
+    </div>
+</div>
+
+<script>
+    window.onload = renderHistory;
+
+    function stringToHex(str) {
+        let hex = '';
+        for (let i = 0; i < str.length; i++) {
+            hex += str.charCodeAt(i).toString(16).padStart(2, '0');
+        }
+        return hex;
+    }
+
+    function generateCode() {
+        const url = document.getElementById('gitUrl').value.trim();
+        let count = parseInt(document.getElementById('counter').value);
+
+        if(!url) return alert("Enter URL");
+
+        const hex = stringToHex(url);
+        const code = `SECURE${count}_${hex}`;
+
+        document.getElementById('payloadDisplay').innerText = code;
+        document.getElementById('outputBox').style.display = 'block';
+
+        // ব্রাউজারে সেভ করা
+        saveHistory(count, code);
+
+        // পরের জন্য ১ কমানো
+        document.getElementById('counter').value = count - 1;
+        renderHistory();
+    }
+
+    function saveHistory(count, code) {
+        let history = JSON.parse(localStorage.getItem('my_beta_codes')) || [];
+        history.unshift({ count: count, code: code, date: new Date().toLocaleTimeString() });
+        localStorage.setItem('my_beta_codes', JSON.stringify(history));
+    }
+
+    function renderHistory() {
+        let history = JSON.parse(localStorage.getItem('my_beta_codes')) || [];
+        const container = document.getElementById('historyList');
+        if(history.length === 0) {
+            container.innerHTML = "<p style='font-size:0.8rem; color:#64748b;'>No saved history</p>";
+            return;
+        }
+        container.innerHTML = '';
+        history.forEach((item, index) => {
+            const status = index === 0 ? "🟢 ACTIVE" : "🔴 USED/EXPIRED";
+            container.innerHTML += `
+                <div class="history-item">
+                    <b>${status}</b> | Code: ${item.count} | Time: ${item.date}<br>
+                    <span style="color:#94a3b8;">${item.code.substring(0, 30)}...</span>
+                </div>
+            `;
+        });
+    }
+</script>
+
+</body>
+</html>
