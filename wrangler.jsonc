@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "234577757",
+  "main": "worker.js",
+  "compatibility_date": "2026-07-30",
+  "kv_namespaces": [
+    {
+      "binding": "TOKEN_DB",
+      "id": "YOUR_KV_NAMESPACE_ID"
+    }
+  ]
+}
